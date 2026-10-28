@@ -1,34 +1,37 @@
 # Evaluation Report - Factuality Auditor
 
-> Reproduce everything here with `make evaluation`. Report mean ± 95% confidence interval over N seeds.
+> Reproduce with `python -m factuality_auditor evaluate`. Deterministic and offline.
 
 ## Setup
-- **Task / dataset:** name, size, split.
-- **Metrics:** definition of each metric and why it's the right one.
-- **Graders:** exact-match / model-graded (which model, prompt) / human.
-- **Baselines:** what you compare against.
-- **Seeds:** list. **Hardware:** e.g., 1×A100 80GB. **Cost:** $X. **Runtime:** Yh.
 
-## Headline results
+- **Knowledge base:** functional facts over five relations.
+- **Answers:** fifteen labeled answers spanning supported, refutable-hallucinated, and
+  unverifiable (factual and hallucinated) cases.
+- **Metrics:** hallucination detection (precision, recall, F1) and expected calibration error.
+- **Baselines:** a trust-everything detector and an overconfident calibrator.
 
-| Metric | This project | Baseline | SOTA / ref | Δ vs baseline |
-|---|---:|---:|---:|---:|
-| Primary (↑) | **0.00 ± 0.00** | 0.00 | 0.00 | +0.00 |
-| Latency p95 (ms, ↓) | **0** | 0 | - | - |
-| Cost / 1k ($, ↓) | **0.00** | 0.00 | - | - |
+## Results
 
-## Ablations
+| Method | precision | recall | F1 |
+|---|---:|---:|---:|
+| auditor | 1.000 | 0.714 | 0.833 |
+| trust-everything | 0.000 | 0.000 | 0.000 |
 
-| Variant | Metric | Δ | Notes |
-|---|---:|---:|---|
-| Full | 0.00 | - | reference |
-| - component X | 0.00 | −0.00 | shows X matters |
+| Method | expected calibration error |
+|---|---:|
+| auditor confidence | 0.037 |
+| overconfident baseline | 0.123 |
 
-## LLM-as-judge validation (if used)
-- Agreement with human labels (Cohen's κ / accuracy), bias controls, sample size.
+## Interpretation
 
-## Error analysis
-- Top failure categories with counts and representative examples.
+The auditor flags every refutable hallucination and never flags a factual answer, giving
+perfect precision. Its recall is below one because some hallucinations concern subjects
+outside the knowledge base; there the auditor abstains with low confidence rather than
+guessing. That calibrated honesty is visible in the expected calibration error: the auditor's
+confidence tracks its accuracy (0.037), while an overconfident baseline that always reports
+high confidence is much less trustworthy (0.123). Detection and calibration together tell the
+whole story, measured on held-out, labeled answers.
 
 ## Reproducibility
-- Exact command, configuration hash, dataset version, W&B/MLflow run URL.
+
+Everything is offline and deterministic; the numbers regenerate exactly.

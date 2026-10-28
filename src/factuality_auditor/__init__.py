@@ -8,6 +8,14 @@ from factuality_auditor.calibration import (
     expected_calibration_error,
     reliability_table,
 )
+from factuality_auditor.evaluation import (
+    DetectionMetrics,
+    auditor_calibration_error,
+    baseline_detection_metrics,
+    detection_metrics,
+    format_report,
+    overconfident_calibration_error,
+)
 from factuality_auditor.extraction import extract_claims
 from factuality_auditor.knowledge import RELATIONS, KnowledgeBase
 from factuality_auditor.scoring import DocumentAudit, audit_document
@@ -22,15 +30,21 @@ __all__ = [
     "CalibrationBin",
     "Claim",
     "ClaimAudit",
+    "DetectionMetrics",
     "DocumentAudit",
     "Fact",
     "KnowledgeBase",
     "Prediction",
     "Verdict",
     "audit_document",
+    "auditor_calibration_error",
+    "baseline_detection_metrics",
+    "detection_metrics",
     "expected_calibration_error",
     "extract_claims",
+    "format_report",
     "normalize",
+    "overconfident_calibration_error",
     "reliability_table",
     "split_sentences",
     "verify_claim",

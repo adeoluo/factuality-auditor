@@ -1,22 +1,22 @@
 # Data Card - Factuality Auditor
 
-## Sources & provenance
-- Where each dataset came from (links), collection method, dates.
+The project bundles one small knowledge base and one labeled answer set. There is no training
+data and nothing is downloaded.
 
-## Licensing
-- License of each source and whether usage complies. Redistribution terms.
+## knowledge base (`src/factuality_auditor/data.py`)
 
-## Composition
-- Size, format, fields, language(s), modality.
+- **Provenance:** hand-authored general-knowledge facts over five functional relations
+  (capital_of, located_in, born_in, symbol_is, moon_count).
+- **Licensing:** authored by this repository; MIT.
 
-## Preprocessing & filtering
-- Cleaning, dedup, PII handling, filtering rules.
+## labeled answers (`src/factuality_auditor/data.py`)
 
-## Contamination checks
-- How you ensured evaluation data is not in training / few-shot context.
-
-## Known biases & gaps
-- Representation gaps, label noise, sampling bias.
+- **Provenance:** fifteen hand-authored answers, each labeled factual or hallucinated.
+- **Composition:** supported-factual, refutable-hallucinated, and unverifiable answers (both
+  factual and hallucinated), chosen so detection and calibration are both meaningful.
+- **Known gaps:** small, English, general knowledge; a demonstration set, not a benchmark.
 
 ## Ethical considerations
-- Consent, sensitive content, privacy.
+
+All content is synthetic general knowledge with no personal, sensitive, or copyrighted
+material.

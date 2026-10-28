@@ -1,21 +1,24 @@
 # Threat Model - Factuality Auditor
 
 ## Assets
-- What's worth protecting (data, keys, model, user trust, budget).
+
+- Integrity of the verdicts, the document judgment, and the calibration numbers.
 
 ## Trust boundaries
-- Where untrusted input crosses into the system (reference the architecture diagram).
 
-## Threats (STRIDE + LLM-specific)
+- **Answers and claims are untrusted text.** They are parsed and compared, never executed;
+  there is no path from text to execution.
+
+## Threats and mitigations
 
 | Threat | Vector | Impact | Mitigation |
 |---|---|---|---|
-| Prompt injection | Untrusted content in context / tools | Data exfiltration, unsafe actions | Input/output filtering, tool allow-list, least privilege |
-| Jailbreak | Adversarial user prompt | Policy bypass | System-prompt hardening, output classifier, refusal evaluation |
-| Data exfiltration | Model echoes secrets / PII | Privacy breach | Secret scanning, output redaction, no secrets in context |
-| Excessive cost | Unbounded loops / large inputs | $ blowout | Token/step budgets, rate limits, timeouts |
-| Tool abuse | Agent calls dangerous tool | Destructive action | Approval gates, sandboxing, dry-run |
-| Supply chain | Malicious dependency | Code execution | Pinned dependencies, Dependabot, SBOM |
+| False confidence on the unknown | Claims outside the knowledge base | Trusting a hallucination | The auditor abstains with low, calibrated confidence |
+| Knowledge-base poisoning | Wrong facts added to the base | Wrong verdicts | Verification is read-only; callers control the base |
+| Overstated accuracy | Reporting only detection | Hidden miscalibration | Both detection and calibration are reported |
+| Supply-chain compromise | Malicious dependency | Code execution | Zero runtime dependencies; Dependabot and CodeQL in continuous integration |
 
 ## Residual risk
-- What remains after mitigations and why it's acceptable.
+
+Recall is bounded by the knowledge base, so some hallucinations are not refutable; the
+calibrated confidence makes that uncertainty explicit rather than hiding it.

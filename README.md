@@ -121,6 +121,13 @@ print(audit.is_hallucinated, round(audit.confidence, 2))
   deliberately uncertain on claims outside its knowledge, which calibration rewards.
   ([ADR-0003](docs/adr/0003-calibrated-confidence.md))
 
+## Performance
+
+A deterministic micro-benchmark (`uv run python benchmarks/benchmark.py`) audits a thousand
+answers against a thousand-fact knowledge base end to end (extraction, verification, and
+scoring), reporting throughput. On a laptop the auditor sustains tens of thousands of answers
+per second, because verification is an indexed lookup rather than a model call.
+
 ## Responsible AI
 
 - **Model card:** [docs/MODEL_CARD.md](docs/MODEL_CARD.md)

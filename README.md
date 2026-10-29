@@ -121,12 +121,33 @@ print(audit.is_hallucinated, round(audit.confidence, 2))
   deliberately uncertain on claims outside its knowledge, which calibration rewards.
   ([ADR-0003](docs/adr/0003-calibrated-confidence.md))
 
-## Performance
+## Running the service
+
+A dependency-free HTTP service exposes the auditor as a production-style JSON API:
+
+```bash
+python -m factuality_auditor serve --port 8000
+
+curl localhost:8000/health
+curl -s -X POST localhost:8000/audit -d '{"text": "Paris is the capital of Germany."}'
+```
+
+`GET /health` reports the knowledge-base size; `POST /audit` returns the judgment, the
+calibrated confidence, claim counts, and per-claim verdicts with contradicting evidence.
+See the [operations guide](docs/OPERATIONS.md) for the service contract and constraints.
+
+## Performance and reliability
 
 A deterministic micro-benchmark (`uv run python benchmarks/benchmark.py`) audits a thousand
 answers against a thousand-fact knowledge base end to end (extraction, verification, and
 scoring), reporting throughput. On a laptop the auditor sustains tens of thousands of answers
 per second, because verification is an indexed lookup rather than a model call.
+
+A production-style stress benchmark (`uv run python benchmarks/stress.py`) drives the full
+audit handler under concurrent load and reports throughput with p50, p95, and p99 latency,
+confirming flat, sub-millisecond latency because verification is an indexed lookup. The
+scaling path and tradeoffs are in [docs/SCALING.md](docs/SCALING.md), and a full audit
+walk-through (including the honest-abstention case) is in the [case study](docs/CASE_STUDY.md).
 
 ## Responsible AI
 

@@ -8,29 +8,39 @@ config:
     primaryBorderColor: "#1E293B"
     primaryTextColor: "#1E293B"
     lineColor: "#64748B"
-    clusterBkg: "#E2E8F0"
+    clusterBkg: "#EEF2FF"
     clusterBorder: "#94A3B8"
 ---
-flowchart LR
+flowchart TB
+    classDef edge     fill:#F59E0B,stroke:#1E293B,color:#1E293B,stroke-width:1px;
     classDef core     fill:#6366F1,stroke:#1E293B,color:#ffffff,stroke-width:1px;
     classDef data     fill:#10B981,stroke:#1E293B,color:#ffffff,stroke-width:1px;
-    classDef external fill:#F59E0B,stroke:#1E293B,color:#1E293B,stroke-width:1px;
+    classDef control  fill:#0EA5E9,stroke:#1E293B,color:#ffffff,stroke-width:1px;
+    classDef obs      fill:#CBD5E1,stroke:#1E293B,color:#1E293B,stroke-width:1px;
 
-    Answer([Generated answer]):::external
+    Client([Client]):::edge
 
-    subgraph Pipeline["Audit pipeline"]
-        Extract[Claim extraction]:::core
-        Verify[Verification]:::core
-        Score[Document scoring]:::core
+    subgraph Edge["Service layer (stdlib HTTP, stateless)"]
+        direction TB
+        Router["Router<br/>GET /health | POST /audit"]:::core
+        Validate["Input validation<br/>bound: text length"]:::control
     end
 
-    KB[(Knowledge base)]:::data
-    Calibrate[Calibration: expected calibration error]:::core
-    Judgment[["Judgment + calibrated confidence"]]:::core
+    subgraph Pipeline["Audit pipeline (deterministic)"]
+        direction TB
+        Extract["Claim extraction<br/>atomic triples"]:::core
+        Verify["Verification<br/>supported | refuted | unverifiable"]:::core
+        Score["Document scoring<br/>calibrated probability"]:::core
+    end
 
-    Answer -->|sentences| Extract
+    KB[(Knowledge base<br/>functional facts, in memory)]:::data
+    Judgment["Judgment + calibrated confidence<br/>per-claim verdicts and evidence"]:::obs
+
+    Client -->|JSON request| Router --> Validate
+    Validate -->|answer text| Extract
     Extract -->|claims| Verify
     KB -->|supporting or refuting fact| Verify
     Verify -->|verdicts| Score
-    Score --> Judgment
-    Score -.->|confidence vs outcome| Calibrate
+    Score -->|judgment| Router -->|JSON response| Client
+    Score -.-> Judgment
+    Verify -.-> Judgment

@@ -31,6 +31,12 @@ def _cmd_audit(args: argparse.Namespace) -> None:
         )
 
 
+def _cmd_serve(args: argparse.Namespace) -> None:
+    from factuality_auditor.service import serve
+
+    serve(host=args.host, port=args.port)
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="factuality-auditor", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -40,7 +46,11 @@ def main(argv: list[str] | None = None) -> None:
     audit = sub.add_parser("audit", help="audit a single answer")
     audit.add_argument("text", help="the answer text to audit")
 
-    handlers = {"evaluate": _cmd_evaluate, "audit": _cmd_audit}
+    serve = sub.add_parser("serve", help="start the HTTP audit service")
+    serve.add_argument("--host", default="127.0.0.1", help="bind host")
+    serve.add_argument("--port", type=int, default=8000, help="bind port")
+
+    handlers = {"evaluate": _cmd_evaluate, "audit": _cmd_audit, "serve": _cmd_serve}
     args = parser.parse_args(argv)
     handlers[args.command](args)
 

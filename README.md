@@ -20,7 +20,7 @@
 A language model's answer can be fluent and wrong. Catching that requires checking the
 answer's **individual factual claims** against trusted knowledge, and, just as importantly,
 knowing **how much to trust the check itself**. This project builds a factuality auditor
-**from first principles**: it decomposes an answer into atomic claims, verifies each against a
+**from scratch**: it decomposes an answer into atomic claims, verifies each against a
 knowledge base, judges the whole answer, and reports a **calibrated confidence** so a
 downstream system can act on a probability rather than a bare label. It is offline,
 deterministic, and has **zero runtime dependencies**.

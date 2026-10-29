@@ -16,6 +16,8 @@ built once at startup and then serves stateless audits.
 | Method | Path | Body | Success |
 |---|---|---|---|
 | GET | `/health` | none | `{"status": "ok", "facts": N}` |
+| GET | `/ready` | none | readiness once the knowledge base is loaded |
+| GET | `/metrics` | none | per-route request, error, and latency metrics (Prometheus text) |
 | POST | `/audit` | `{"text"}` | judgment, confidence, claim counts, per-claim verdicts |
 
 Errors return JSON `{"error": ...}` with a 4xx status; malformed JSON yields `400`.

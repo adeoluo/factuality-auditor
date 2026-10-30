@@ -73,6 +73,27 @@ with low confidence** rather than guessing. That honesty is exactly what the cal
 number captures: the auditor's confidence tracks its accuracy (error 0.037), whereas an
 overconfident baseline that always reports high confidence is far less trustworthy (0.123).
 
+### Scale
+
+To check that the audit pipeline holds up at volume, `benchmarks/scale.py` runs
+`audit_document` over deterministically generated answer sets at growing sizes, auditing
+each answer against a same-sized knowledge base of capital-of facts. Half of every batch
+is factual and half is hallucinated (wrong country), so detection precision and recall
+are measured against the known labels, while wall-clock time, throughput, and peak memory
+(via the standard-library `tracemalloc`) are recorded. The data is synthetic and the
+numbers are environment-specific, but the shape is the point: throughput stays roughly
+flat and memory grows linearly with the workload, while detection stays exact on this
+clean synthetic set.
+
+| Answers | Wall-clock (s) | Throughput (answers/s) | Peak memory (MiB) | Precision | Recall |
+|---:|---:|---:|---:|---:|---:|
+| 1,000 | 0.063 | ~16,000 | 0.57 | 1.000 | 1.000 |
+| 4,000 | 0.265 | ~15,100 | 2.12 | 1.000 | 1.000 |
+| 16,000 | 1.071 | ~14,900 | 8.95 | 1.000 | 1.000 |
+| 32,000 | 2.460 | ~13,000 | 18.35 | 1.000 | 1.000 |
+
+Reproduce with `uv run python benchmarks/scale.py`.
+
 ## Demonstration
 
 ```text

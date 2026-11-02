@@ -167,6 +167,16 @@ calibrated confidence, claim counts, and per-claim verdicts with contradicting e
 See the [operations guide](docs/OPERATIONS.md) for the service contract and constraints.
 The service also exposes `GET /ready` (readiness) and `GET /metrics` (per-route request, error, and latency metrics in Prometheus text format).
 
+### Demos
+
+Recorded from real runs with [vhs](https://github.com/charmbracelet/vhs); each tape is in `docs/demo/`.
+
+Auditing a false claim against the evidence, then the evaluation.
+
+<p align="center">
+  <img src="docs/demo/audit.gif" alt="Auditing a false claim against the evidence, then the evaluation" width="860">
+</p>
+
 ## Design decisions
 
 - **A functional knowledge base.** Functional relations are what make refutation possible, so

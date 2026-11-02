@@ -177,6 +177,18 @@ Auditing a false claim against the evidence, then the evaluation.
   <img src="docs/demo/audit.gif" alt="Auditing a false claim against the evidence, then the evaluation" width="860">
 </p>
 
+The HTTP service auditing a false claim.
+
+<p align="center">
+  <img src="docs/demo/http.gif" alt="The HTTP service auditing a false claim" width="860">
+</p>
+
+A supported claim and a refuted claim, audited against the evidence.
+
+<p align="center">
+  <img src="docs/demo/audit-more.gif" alt="A supported claim and a refuted claim, audited against the evidence" width="860">
+</p>
+
 ## Design decisions
 
 - **A functional knowledge base.** Functional relations are what make refutation possible, so

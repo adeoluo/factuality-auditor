@@ -33,7 +33,7 @@ Because replicas share nothing, throughput is approximately linear in replica co
   keeps the auditor calibrated and honest, at the cost of lower recall. Forcing a judgment
   would raise recall but wreck calibration; the reference optimizes for trustworthy
   confidence.
-- **Threads vs processes.** The pipeline is pure Python and GIL-bound, so processes, not
+- **Threads vs processes.** The pipeline is CPU-bound Python under the GIL, so processes, not
   threads, are the unit of scaling. The service is stateless to make that trivial.
 
 ## What would change under real load

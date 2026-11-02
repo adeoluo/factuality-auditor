@@ -1,4 +1,4 @@
-"""A dependency-free HTTP service exposing the factuality auditor.
+"""A standard-library HTTP service exposing the factuality auditor.
 
 The service builds the knowledge base once at startup and audits answers against
 it. A pure handler is separated from the socket binding for testing.

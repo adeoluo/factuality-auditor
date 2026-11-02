@@ -5,12 +5,10 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/adeoluo/factuality-auditor/actions/workflows/ci.yml"><img alt="Continuous integration" src="https://github.com/adeoluo/factuality-auditor/actions/workflows/ci.yml/badge.svg"></a>
-  <img alt="Coverage" src="https://img.shields.io/badge/coverage-97%25-brightgreen">
+  <a href="https://github.com/adeoluo/factuality-auditor/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/adeoluo/factuality-auditor/actions/workflows/ci.yml/badge.svg"></a>
+  <a href="https://github.com/adeoluo/factuality-auditor/releases"><img alt="Release" src="https://img.shields.io/github/v/release/adeoluo/factuality-auditor"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.11%20%7C%203.12-blue">
-  <img alt="Type checked" src="https://img.shields.io/badge/mypy-strict-blue">
-  <img alt="Runtime dependencies" src="https://img.shields.io/badge/runtime%20deps-0-brightgreen">
-  <img alt="License" src="https://img.shields.io/badge/license-MIT-green">
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-green"></a>
 </p>
 
 ---
@@ -22,13 +20,13 @@ answer's **individual factual claims** against trusted knowledge, and, just as i
 knowing **how much to trust the check itself**. This project builds a factuality auditor
 **from scratch**: it decomposes an answer into atomic claims, verifies each against a
 knowledge base, judges the whole answer, and reports a **calibrated confidence** so a
-downstream system can act on a probability rather than a bare label. It is offline,
-deterministic, and has **zero runtime dependencies**.
+downstream system can act on a probability rather than a bare label. It is offline and
+deterministic.
 
 ## Architecture
 
 <p align="center">
-  <img src="docs/architecture/architecture.svg" alt="System architecture" width="900">
+  <img src="docs/architecture/architecture.svg" alt="Architecture diagram" width="860">
 </p>
 
 An answer is split into claims, each claim is verified against the knowledge base
@@ -36,17 +34,26 @@ An answer is split into claims, each claim is verified against the knowledge bas
 and the confidence is checked against outcomes by a calibration metric. See the
 [ADRs](docs/adr/) for the key design choices.
 
-## How verification works
+### How verification works
 
 The knowledge base holds **functional facts**: a subject and relation fix a single correct
 object (a country has one capital, an element one symbol). This is what lets the auditor
 **refute** a claim rather than merely fail to support it:
 
-- **Supported** - the base holds exactly the claimed fact.
-- **Refuted** - the base holds the same subject and relation but a **different** object, so
+- **Supported**: the base holds exactly the claimed fact.
+- **Refuted**: the base holds the same subject and relation but a **different** object, so
   the claim contradicts known fact.
-- **Unverifiable** - the base has nothing on that subject, so the auditor **abstains** with
+- **Unverifiable**: the base has nothing on that subject, so the auditor **abstains** with
   low confidence instead of guessing.
+
+### Components
+
+- **extraction**: rule-based mapping of sentences to (subject, relation, object) claims.
+- **knowledge**: a functional-fact knowledge base supporting contradiction checks.
+- **verification**: supported, refuted, or unverifiable, each with a confidence.
+- **scoring**: aggregate claims into a document judgment and a calibrated probability.
+- **calibration**: reliability bins and expected calibration error.
+- **evaluation**: detection and calibration on the labeled set.
 
 ## Results
 
@@ -94,14 +101,18 @@ clean synthetic set.
 
 Reproduce with `uv run python benchmarks/scale.py`.
 
-## Demonstration
+### Performance and reliability
 
-```text
-$ python -m factuality_auditor audit "Paris is the capital of Germany."
-judgment: HALLUCINATED (confidence 0.97)
-claims: 0 supported, 1 refuted, 0 unverifiable
-  [     refuted] paris / capital_of / germany (known: france)
-```
+A deterministic micro-benchmark (`uv run python benchmarks/benchmark.py`) audits a thousand
+answers against a thousand-fact knowledge base end to end (extraction, verification, and
+scoring), reporting throughput. On a laptop the auditor sustains tens of thousands of answers
+per second, because verification is an indexed lookup rather than a model call.
+
+A production-style stress benchmark (`uv run python benchmarks/stress.py`) drives the full
+audit handler under concurrent load and reports throughput with p50, p95, and p99 latency,
+confirming flat, sub-millisecond latency because verification is an indexed lookup. The
+scaling path and tradeoffs are in [docs/SCALING.md](docs/SCALING.md), and a full audit
+walk-through (including the honest-abstention case) is in the [case study](docs/CASE_STUDY.md).
 
 ## Quickstart
 
@@ -124,27 +135,20 @@ audit = audit_document("Paris is the capital of Germany.", knowledge)
 print(audit.is_hallucinated, round(audit.confidence, 2))
 ```
 
-## Components
+## Usage
 
-- **extraction** - rule-based mapping of sentences to (subject, relation, object) claims.
-- **knowledge** - a functional-fact knowledge base supporting contradiction checks.
-- **verification** - supported, refuted, or unverifiable, each with a confidence.
-- **scoring** - aggregate claims into a document judgment and a calibrated probability.
-- **calibration** - reliability bins and expected calibration error.
-- **evaluation** - detection and calibration on the labeled set.
+### Command line
 
-## Design decisions
+```text
+$ python -m factuality_auditor audit "Paris is the capital of Germany."
+judgment: HALLUCINATED (confidence 0.97)
+claims: 0 supported, 1 refuted, 0 unverifiable
+  [     refuted] paris / capital_of / germany (known: france)
+```
 
-- **A functional knowledge base.** Functional relations are what make refutation possible, so
-  the auditor can say a claim is wrong, not just unproven.
-  ([ADR-0002](docs/adr/0002-functional-knowledge-base.md))
-- **Calibrated confidence and abstention.** The auditor is confident on verifiable claims and
-  deliberately uncertain on claims outside its knowledge, which calibration rewards.
-  ([ADR-0003](docs/adr/0003-calibrated-confidence.md))
+### HTTP service
 
-## Running the service
-
-A dependency-free HTTP service exposes the auditor as a production-style JSON API:
+A standard-library HTTP service exposes the auditor as a production-style JSON API:
 
 ```bash
 python -m factuality_auditor serve --port 8000
@@ -158,18 +162,29 @@ calibrated confidence, claim counts, and per-claim verdicts with contradicting e
 See the [operations guide](docs/OPERATIONS.md) for the service contract and constraints.
 The service also exposes `GET /ready` (readiness) and `GET /metrics` (per-route request, error, and latency metrics in Prometheus text format).
 
-## Performance and reliability
+## Design decisions
 
-A deterministic micro-benchmark (`uv run python benchmarks/benchmark.py`) audits a thousand
-answers against a thousand-fact knowledge base end to end (extraction, verification, and
-scoring), reporting throughput. On a laptop the auditor sustains tens of thousands of answers
-per second, because verification is an indexed lookup rather than a model call.
+- **A functional knowledge base.** Functional relations are what make refutation possible, so
+  the auditor can say a claim is wrong, not just unproven.
+  ([ADR-0002](docs/adr/0002-functional-knowledge-base.md))
+- **Calibrated confidence and abstention.** The auditor is confident on verifiable claims and
+  deliberately uncertain on claims outside its knowledge, which calibration rewards.
+  ([ADR-0003](docs/adr/0003-calibrated-confidence.md))
 
-A production-style stress benchmark (`uv run python benchmarks/stress.py`) drives the full
-audit handler under concurrent load and reports throughput with p50, p95, and p99 latency,
-confirming flat, sub-millisecond latency because verification is an indexed lookup. The
-scaling path and tradeoffs are in [docs/SCALING.md](docs/SCALING.md), and a full audit
-walk-through (including the honest-abstention case) is in the [case study](docs/CASE_STUDY.md).
+## Testing
+
+```bash
+make test        # uv run pytest
+make coverage    # pytest with an 80% coverage gate, as in CI
+make lint type   # ruff format check, ruff lint, mypy
+```
+
+- `tests/test_core.py`: text normalization, sentence splitting, claim-extraction patterns, knowledge-base lookup, and the supported, refuted, and unverifiable verdicts.
+- `tests/test_scoring.py`: document judgments (factual, hallucinated, unverifiable, no claims) and calibration error and reliability bins.
+- `tests/test_evaluation.py`: detection precision, the trust-everything baseline, calibration against the overconfident baseline, report formatting, and the command-line interface.
+- `tests/test_service.py`: the HTTP handler layer, including health, readiness, metrics, `/audit` verdicts, input validation, and unknown routes.
+
+CI runs ruff format, ruff lint, mypy, and pytest with the coverage gate on Python 3.11 and 3.12, then builds the package and the Docker image.
 
 ## Responsible AI
 
@@ -180,7 +195,7 @@ walk-through (including the honest-abstention case) is in the [case study](docs/
 ## Limitations
 
 - Extraction is rule-based; messy prose needs a model-backed extractor (a deliberate boundary
-  to stay from-scratch and dependency-free).
+  to keep the pipeline from scratch and inspectable).
 - The knowledge base is small and covers five functional relations; recall is bounded by its
   coverage, which the calibrated confidence makes explicit.
 - The bundled set is a demonstration, not a competitive benchmark.
@@ -193,5 +208,4 @@ walk-through (including the honest-abstention case) is in the [case study](docs/
 
 ## License
 
-[MIT](LICENSE). Part of an artificial intelligence engineering portfolio by
-[adeoluo](https://github.com/adeoluo).
+Released under the [MIT License](LICENSE).

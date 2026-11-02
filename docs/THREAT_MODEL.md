@@ -16,7 +16,7 @@
 | False confidence on the unknown | Claims outside the knowledge base | Trusting a hallucination | The auditor abstains with low, calibrated confidence |
 | Knowledge-base poisoning | Wrong facts added to the base | Wrong verdicts | Verification is read-only; callers control the base |
 | Overstated accuracy | Reporting only detection | Hidden miscalibration | Both detection and calibration are reported |
-| Supply-chain compromise | Malicious dependency | Code execution | Zero runtime dependencies; Dependabot and CodeQL in continuous integration |
+| Supply-chain compromise | Malicious dependency | Code execution | No third-party runtime packages; Dependabot and CodeQL in continuous integration |
 
 ## Residual risk
 

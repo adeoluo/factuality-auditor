@@ -8,7 +8,7 @@ The operational contract of the audit service.
 uv run python -m factuality_auditor serve --host 0.0.0.0 --port 8000
 ```
 
-A standard-library HTTP server with **zero runtime dependencies**. The knowledge base is
+A standard-library HTTP server. The knowledge base is
 built once at startup and then serves stateless audits.
 
 ## Endpoints

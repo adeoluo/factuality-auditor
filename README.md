@@ -29,10 +29,15 @@ deterministic.
   <img src="docs/architecture/architecture.svg" alt="Architecture diagram" width="860">
 </p>
 
-An answer is split into claims, each claim is verified against the knowledge base
-(supported, refuted, or unverifiable), the verdicts are aggregated into a document judgment,
-and the confidence is checked against outcomes by a calibration metric. See the
-[ADRs](docs/adr/) for the key design choices.
+<sub>Legend: amber = entry points and external systems, indigo = core logic, green = data and state, blue = validation and control, grey = observability and outputs.</sub>
+
+The CLI and the HTTP service (which first bounds the text length) share one deterministic
+pipeline. An answer is normalized and split into sentences, rule-based extraction turns
+them into claims, each claim is verified against the knowledge base (supported, refuted, or
+unverifiable), and the verdicts are aggregated into a document judgment with a confidence.
+On the labeled set, detection metrics compare the auditor with a trust-everything baseline
+and a calibration metric checks the confidence against outcomes; every route also records
+latency and errors for `/metrics`. See the [ADRs](docs/adr/) for the key design choices.
 
 ### How verification works
 

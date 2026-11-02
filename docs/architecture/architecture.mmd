@@ -5,29 +5,49 @@ flowchart TD
     classDef control  fill:#0EA5E9,stroke:#1E293B,color:#ffffff,stroke-width:1px;
     classDef obs      fill:#CBD5E1,stroke:#1E293B,color:#1E293B,stroke-width:1px;
 
-    Client([Client]):::edge
+    User([CLI user]):::edge
+    Client([HTTP client]):::edge
 
-    subgraph Edge["Service layer (stdlib HTTP, stateless)"]
+    subgraph Interfaces["Interfaces (CLI and stdlib HTTP)"]
         direction TB
-        Router["Router<br/>GET /health | POST /audit"]:::core
-        Validate["Input validation<br/>bound: text length"]:::control
+        CLI["cli.py<br/>evaluate | audit | serve"]:::edge
+        Router["service.py router<br/>/health /ready /audit /metrics"]:::core
+        Validate["Request validation<br/>text, max 4000 characters"]:::control
     end
 
-    subgraph Pipeline["Audit pipeline (deterministic)"]
+    subgraph Core["Audit pipeline (deterministic)"]
         direction TB
-        Extract["Claim extraction<br/>atomic triples"]:::core
-        Verify["Verification<br/>supported | refuted | unverifiable"]:::core
-        Score["Document scoring<br/>calibrated probability"]:::core
+        Text["text.py<br/>normalize, split sentences"]:::core
+        Extract["extraction.py<br/>rule-based subject, relation, object"]:::core
+        Verify["verification.py<br/>supported | refuted | unverifiable"]:::core
+        Score["scoring.py<br/>document judgment and confidence"]:::core
     end
 
-    KB[(Knowledge base<br/>functional facts, in memory)]:::data
-    Judgment["Judgment + calibrated confidence<br/>per-claim verdicts and evidence"]:::obs
+    subgraph State["Data and state (in memory)"]
+        direction TB
+        KB[("Knowledge base<br/>functional facts")]:::data
+        Labeled[("Labeled answers<br/>factual or hallucinated")]:::data
+    end
 
-    Client -->|JSON request| Router --> Validate
-    Validate -->|answer text| Extract
+    subgraph Obs["Evaluation and observability"]
+        direction TB
+        Detection["Detection metrics<br/>vs trust-everything baseline"]:::obs
+        Calibration["calibration.py<br/>reliability bins, ECE"]:::obs
+        Response["Audit JSON<br/>per-claim verdicts and evidence"]:::obs
+        Metrics["ServiceMetrics<br/>Prometheus text"]:::obs
+    end
+
+    User -->|arguments| CLI
+    Client -->|JSON request| Router
+    Router -->|POST /audit| Validate
+    Validate -->|answer text| Text
+    CLI -->|answer text| Text
+    Text -->|sentences| Extract
     Extract -->|claims| Verify
-    KB -->|supporting or refuting fact| Verify
-    Verify -->|verdicts| Score
-    Score -->|judgment| Router -->|JSON response| Client
-    Score -.-> Judgment
-    Verify -.-> Judgment
+    KB -.->|canonical fact lookup| Verify
+    Verify -->|claim verdicts| Score
+    Score -->|judgment| Response
+    Labeled -.->|gold labels| Detection
+    Score -->|flagged or not| Detection
+    Score -->|confidence vs correctness| Calibration
+    Router -.->|route latency and errors| Metrics

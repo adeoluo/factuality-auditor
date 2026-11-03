@@ -1,0 +1,40 @@
+# Factuality Auditor
+
+> Hallucination detection built from scratch: extract atomic claims, verify them against a knowledge base, and produce a calibrated factuality judgment.
+
+Languages: Python. License: MIT. Source: https://github.com/adeoluo/factuality-auditor
+
+## Docs
+
+- [README](https://github.com/adeoluo/factuality-auditor/blob/main/README.md): motivation, architecture, results, quickstart, usage, design decisions, testing, responsible ai, limitations, roadmap
+- [AGENTS.md](https://github.com/adeoluo/factuality-auditor/blob/main/AGENTS.md): layout, commands and conventions for changing the code
+- [Architecture diagram](https://github.com/adeoluo/factuality-auditor/blob/main/docs/architecture/architecture.mmd): Mermaid source of the component diagram
+- [End-to-End Case Study - Auditing a Generated Answer](https://github.com/adeoluo/factuality-auditor/blob/main/docs/CASE_STUDY.md)
+- [Data Card - Factuality Auditor](https://github.com/adeoluo/factuality-auditor/blob/main/docs/DATA_CARD.md)
+- [Definition of Done](https://github.com/adeoluo/factuality-auditor/blob/main/docs/DEFINITION_OF_DONE.md)
+- [Evaluation Report - Factuality Auditor](https://github.com/adeoluo/factuality-auditor/blob/main/docs/EVALUATION_REPORT.md)
+- [System Card - Factuality Auditor](https://github.com/adeoluo/factuality-auditor/blob/main/docs/MODEL_CARD.md)
+- [Operations Guide - Factuality Auditor](https://github.com/adeoluo/factuality-auditor/blob/main/docs/OPERATIONS.md)
+- [Scaling and Design Tradeoffs - Factuality Auditor](https://github.com/adeoluo/factuality-auditor/blob/main/docs/SCALING.md)
+- [Threat Model - Factuality Auditor](https://github.com/adeoluo/factuality-auditor/blob/main/docs/THREAT_MODEL.md)
+- [ADR-0001: Record architecture decisions](https://github.com/adeoluo/factuality-auditor/blob/main/docs/adr/0001-record-architecture-decisions.md)
+- [ADR-0002: A functional-fact knowledge base](https://github.com/adeoluo/factuality-auditor/blob/main/docs/adr/0002-functional-knowledge-base.md)
+- [ADR-0003: Calibrated confidence and abstention](https://github.com/adeoluo/factuality-auditor/blob/main/docs/adr/0003-calibrated-confidence.md)
+- [ADR-NNNN: <short title>](https://github.com/adeoluo/factuality-auditor/blob/main/docs/adr/template.md)
+- [Changelog](https://github.com/adeoluo/factuality-auditor/blob/main/CHANGELOG.md): release history
+
+## Source
+
+- [src/factuality_auditor/__init__.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/__init__.py): Factuality Auditor - hallucination detection and calibration from scratch.
+- [src/factuality_auditor/calibration.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/calibration.py): Calibration metrics: is the auditor's confidence trustworthy? A confidence is well calibrated when, among predictions made with confidence around ``p``, a fraction close to ``p`` are correct.
+- [src/factuality_auditor/cli.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/cli.py): Command line interface for the factuality auditor.
+- [src/factuality_auditor/data.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/data.py): A bundled knowledge base and a labeled set of answers to audit.
+- [src/factuality_auditor/evaluation.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/evaluation.py): Evaluate the auditor on detection and calibration.
+- [src/factuality_auditor/extraction.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/extraction.py): Extract atomic factual claims from text as (subject, relation, object) triples.
+- [src/factuality_auditor/knowledge.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/knowledge.py): A trusted knowledge base of facts used to verify claims.
+- [src/factuality_auditor/observability.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/observability.py): In-process request metrics for the HTTP service.
+- [src/factuality_auditor/scoring.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/scoring.py): Aggregate per-claim audits into a document-level factuality judgment.
+- [src/factuality_auditor/service.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/service.py): A standard-library HTTP service exposing the factuality auditor.
+- [src/factuality_auditor/text.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/text.py): Deterministic normalization and sentence splitting.
+- [src/factuality_auditor/types.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/types.py): Core data types for the factuality auditor.
+- [src/factuality_auditor/verification.py](https://github.com/adeoluo/factuality-auditor/blob/main/src/factuality_auditor/verification.py): Verify extracted claims against the knowledge base.

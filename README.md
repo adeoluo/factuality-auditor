@@ -218,6 +218,10 @@ CI runs ruff format, ruff lint, mypy, and pytest with the coverage gate on Pytho
 - **Model card:** [docs/MODEL_CARD.md](docs/MODEL_CARD.md)
 - **Data card:** [docs/DATA_CARD.md](docs/DATA_CARD.md)
 - **Threat model:** [docs/THREAT_MODEL.md](docs/THREAT_MODEL.md)
+- **Standards:** the [threat model](docs/THREAT_MODEL.md#standards-mapping) maps the auditor to
+  LLM07:2026 Misinformation in the OWASP Top 10 for LLM Applications 2026, to MITRE ATLAS
+  v2026.10 (AML.T0062 Discover LLM Hallucinations) and to the Confabulation risk in NIST AI
+  600-1.
 
 ## Limitations
 

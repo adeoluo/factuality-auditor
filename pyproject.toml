@@ -1,6 +1,6 @@
 [project]
 name = "factuality-auditor"
-version = "0.1.0"
+version = "0.1.1"
 description = "Hallucination and factuality auditor: extract atomic claims, verify them against a knowledge base, and produce a calibrated factuality judgment"
 readme = "README.md"
 requires-python = ">=3.12"

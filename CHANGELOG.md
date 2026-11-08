@@ -4,6 +4,19 @@ All notable changes to this project are documented here. The file is generated
 from Conventional Commits by [git-cliff](https://git-cliff.org) when a release is cut
 with `make cut-release`.
 
+## [0.1.1] 2026-11-08
+
+### Documentation
+
+- Complete citation metadata and bump it on release (#6)
+- Map the threat model to OWASP LLM 2026 and MITRE ATLAS v2026.10 (#8)
+- Add standards keywords to the citation metadata (#9)
+
+### Maintenance
+
+- Latest toolchain and CI versions (#5)
+- Release script keeps hard-coded version strings in step (#7)
+
 ## [0.1.0] 2026-11-03
 
 ### Features

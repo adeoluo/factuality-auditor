@@ -12,6 +12,7 @@ Hallucination detection built from scratch: extract atomic claims, verify them a
 - `benchmarks/`: benchmark scripts and recorded results
 - `docker-compose.yml`: local container setup
 - `docs/`: documentation, architecture diagram source and render, design records
+- `scripts/`: maintenance scripts (release, assets, data)
 - `src/`: library and service source
 - `tests/`: test suite
 
